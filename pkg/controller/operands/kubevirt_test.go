@@ -3,6 +3,8 @@ package operands
 import (
 	"context"
 	"fmt"
+	"os"
+
 	hcov1beta1 "github.com/kubevirt/hyperconverged-cluster-operator/pkg/apis/hco/v1beta1"
 	"github.com/kubevirt/hyperconverged-cluster-operator/pkg/controller/common"
 	"github.com/kubevirt/hyperconverged-cluster-operator/pkg/controller/commonTestUtils"
@@ -19,10 +21,7 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/tools/reference"
 	kubevirtv1 "kubevirt.io/client-go/api/v1"
-	"os"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-
-	virtconfig "kubevirt.io/kubevirt/pkg/virt-config"
 )
 
 var _ = Describe("KubeVirt Operand", func() {
@@ -117,9 +116,9 @@ var _ = Describe("KubeVirt Operand", func() {
 		var hco *hcov1beta1.HyperConverged
 		var req *common.HcoRequest
 
-		updatableKeys := [...]string{virtconfig.SmbiosConfigKey, virtconfig.MachineTypeKey, virtconfig.SELinuxLauncherTypeKey, virtconfig.FeatureGatesKey}
-		removeKeys := [...]string{virtconfig.MigrationsConfigKey}
-		unupdatableKeys := [...]string{virtconfig.NetworkInterfaceKey}
+		updatableKeys := [...]string{SmbiosConfigKey, MachineTypeKey, SELinuxLauncherTypeKey, FeatureGatesKey}
+		removeKeys := [...]string{MigrationsConfigKey}
+		unupdatableKeys := [...]string{NetworkInterfaceKey}
 
 		BeforeEach(func() {
 			hco = commonTestUtils.NewHco()
@@ -173,14 +172,14 @@ var _ = Describe("KubeVirt Operand", func() {
 			outdatedResource := NewKubeVirtConfigForCR(hco, commonTestUtils.Namespace)
 			outdatedResource.ObjectMeta.SelfLink = fmt.Sprintf("/apis/v1/namespaces/%s/dummies/%s", outdatedResource.Namespace, outdatedResource.Name)
 			// values we should update
-			outdatedResource.Data[virtconfig.SmbiosConfigKey] = "old-smbios-value-that-we-have-to-update"
-			outdatedResource.Data[virtconfig.MachineTypeKey] = "old-machinetype-value-that-we-have-to-update"
-			outdatedResource.Data[virtconfig.SELinuxLauncherTypeKey] = "old-selinuxlauncher-value-that-we-have-to-update"
-			outdatedResource.Data[virtconfig.FeatureGatesKey] = "old-featuregates-value-that-we-have-to-update"
+			outdatedResource.Data[SmbiosConfigKey] = "old-smbios-value-that-we-have-to-update"
+			outdatedResource.Data[MachineTypeKey] = "old-machinetype-value-that-we-have-to-update"
+			outdatedResource.Data[SELinuxLauncherTypeKey] = "old-selinuxlauncher-value-that-we-have-to-update"
+			outdatedResource.Data[FeatureGatesKey] = "old-featuregates-value-that-we-have-to-update"
 			// value that we should remove if configured
-			outdatedResource.Data[virtconfig.MigrationsConfigKey] = "old-migrationsconfig-value-that-we-should-remove"
+			outdatedResource.Data[MigrationsConfigKey] = "old-migrationsconfig-value-that-we-should-remove"
 			// values we should preserve
-			outdatedResource.Data[virtconfig.NetworkInterfaceKey] = "old-defaultnetworkinterface-value-that-we-should-preserve"
+			outdatedResource.Data[NetworkInterfaceKey] = "old-defaultnetworkinterface-value-that-we-should-preserve"
 
 			cl := commonTestUtils.InitClient([]runtime.Object{hco, outdatedResource})
 			handler := (*genericOperand)(newKvConfigHandler(cl, commonTestUtils.GetScheme()))
@@ -219,13 +218,13 @@ var _ = Describe("KubeVirt Operand", func() {
 			outdatedResource := NewKubeVirtConfigForCR(hco, commonTestUtils.Namespace)
 			outdatedResource.ObjectMeta.SelfLink = fmt.Sprintf("/apis/v1/namespaces/%s/dummies/%s", outdatedResource.Namespace, outdatedResource.Name)
 			// values we should update
-			outdatedResource.Data[virtconfig.SmbiosConfigKey] = "old-smbios-value-that-we-have-to-update"
-			outdatedResource.Data[virtconfig.MachineTypeKey] = "old-machinetype-value-that-we-have-to-update"
-			outdatedResource.Data[virtconfig.SELinuxLauncherTypeKey] = "old-selinuxlauncher-value-that-we-have-to-update"
-			outdatedResource.Data[virtconfig.FeatureGatesKey] = "old-featuregates-value-that-we-have-to-update"
+			outdatedResource.Data[SmbiosConfigKey] = "old-smbios-value-that-we-have-to-update"
+			outdatedResource.Data[MachineTypeKey] = "old-machinetype-value-that-we-have-to-update"
+			outdatedResource.Data[SELinuxLauncherTypeKey] = "old-selinuxlauncher-value-that-we-have-to-update"
+			outdatedResource.Data[FeatureGatesKey] = "old-featuregates-value-that-we-have-to-update"
 			// values we should preserve
-			outdatedResource.Data[virtconfig.MigrationsConfigKey] = "old-migrationsconfig-value-that-we-should-preserve"
-			outdatedResource.Data[virtconfig.DefaultNetworkInterface] = "old-defaultnetworkinterface-value-that-we-should-preserve"
+			outdatedResource.Data[MigrationsConfigKey] = "old-migrationsconfig-value-that-we-should-preserve"
+			outdatedResource.Data[DefaultNetworkInterface] = "old-defaultnetworkinterface-value-that-we-should-preserve"
 
 			cl := commonTestUtils.InitClient([]runtime.Object{hco, outdatedResource})
 			handler := (*genericOperand)(newKvConfigHandler(cl, commonTestUtils.GetScheme()))

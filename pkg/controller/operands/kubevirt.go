@@ -3,6 +3,9 @@ package operands
 import (
 	"errors"
 	"fmt"
+	"os"
+	"reflect"
+
 	hcov1beta1 "github.com/kubevirt/hyperconverged-cluster-operator/pkg/apis/hco/v1beta1"
 	"github.com/kubevirt/hyperconverged-cluster-operator/pkg/controller/common"
 	hcoutil "github.com/kubevirt/hyperconverged-cluster-operator/pkg/util"
@@ -12,14 +15,19 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	kubevirtv1 "kubevirt.io/client-go/api/v1"
-	virtconfig "kubevirt.io/kubevirt/pkg/virt-config"
-	"os"
-	"reflect"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
 const (
 	kubevirtDefaultNetworkInterfaceValue = "masquerade"
+	FeatureGatesKey                      = "feature-gates"
+	MachineTypeKey                       = "machine-type"
+	UseEmulationKey                      = "debug.useEmulation"
+	MigrationsConfigKey                  = "migrations"
+	NetworkInterfaceKey                  = "default-network-interface"
+	SmbiosConfigKey                      = "smbios"
+	SELinuxLauncherTypeKey               = "selinuxLauncherType"
+	DefaultNetworkInterface              = "bridge"
 )
 
 // ************  KubeVirt Handler  **************
@@ -168,12 +176,12 @@ func (h *kvConfigHooks) updateCr(req *common.HcoRequest, Client client.Client, e
 		// TODO: This is going to change in the next HCO release where the whole configMap is going
 		// to be continuously reconciled
 		for _, k := range []string{
-			virtconfig.FeatureGatesKey,
-			virtconfig.SmbiosConfigKey,
-			virtconfig.MachineTypeKey,
-			virtconfig.SELinuxLauncherTypeKey,
-			virtconfig.UseEmulationKey,
-			virtconfig.MigrationsConfigKey,
+			FeatureGatesKey,
+			SmbiosConfigKey,
+			MachineTypeKey,
+			SELinuxLauncherTypeKey,
+			UseEmulationKey,
+			MigrationsConfigKey,
 		} {
 			if found.Data[k] != kubevirtConfig.Data[k] {
 				req.Logger.Info(fmt.Sprintf("Updating %s on existing KubeVirt config", k))
@@ -181,7 +189,7 @@ func (h *kvConfigHooks) updateCr(req *common.HcoRequest, Client client.Client, e
 				changed = true
 			}
 		}
-		for _, k := range []string{virtconfig.MigrationsConfigKey} {
+		for _, k := range []string{MigrationsConfigKey} {
 			_, ok := found.Data[k]
 			if ok {
 				req.Logger.Info(fmt.Sprintf("Deleting %s on existing KubeVirt config", k))
@@ -316,22 +324,22 @@ func NewKubeVirtConfigForCR(cr *hcov1beta1.HyperConverged, namespace string) *co
 		// TODO: This is going to change in the next HCO release where the whole configMap is going
 		// to be continuously reconciled
 		Data: map[string]string{
-			virtconfig.FeatureGatesKey:        "DataVolumes,SRIOV,LiveMigration,CPUManager,CPUNodeDiscovery,Sidecar,Snapshot",
-			virtconfig.SELinuxLauncherTypeKey: "virt_launcher.process",
-			virtconfig.NetworkInterfaceKey:    kubevirtDefaultNetworkInterfaceValue,
+			FeatureGatesKey:        "DataVolumes,SRIOV,LiveMigration,CPUManager,CPUNodeDiscovery,Sidecar,Snapshot",
+			SELinuxLauncherTypeKey: "virt_launcher.process",
+			NetworkInterfaceKey:    kubevirtDefaultNetworkInterfaceValue,
 		},
 	}
 	val, ok := os.LookupEnv("SMBIOS")
 	if ok && val != "" {
-		cm.Data[virtconfig.SmbiosConfigKey] = val
+		cm.Data[SmbiosConfigKey] = val
 	}
 	val, ok = os.LookupEnv("MACHINETYPE")
 	if ok && val != "" {
-		cm.Data[virtconfig.MachineTypeKey] = val
+		cm.Data[MachineTypeKey] = val
 	}
 	val, ok = os.LookupEnv("KVM_EMULATION")
 	if ok && val != "" {
-		cm.Data[virtconfig.UseEmulationKey] = val
+		cm.Data[UseEmulationKey] = val
 	}
 	return cm
 }
