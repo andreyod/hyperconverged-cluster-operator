@@ -28,7 +28,7 @@ import (
 	"github.com/kubevirt/hyperconverged-cluster-operator/pkg/controller/common"
 	"github.com/kubevirt/hyperconverged-cluster-operator/pkg/controller/operands"
 	hcoutil "github.com/kubevirt/hyperconverged-cluster-operator/pkg/util"
-	"github.com/kubevirt/hyperconverged-cluster-operator/pkg/util/predicate"
+//	"github.com/kubevirt/hyperconverged-cluster-operator/pkg/util/predicate"
 	version "github.com/kubevirt/hyperconverged-cluster-operator/version"
 	sspv1 "github.com/kubevirt/kubevirt-ssp-operator/pkg/apis/kubevirt/v1"
 	vmimportv1beta1 "github.com/kubevirt/vm-import-operator/pkg/apis/v2v/v1beta1"
@@ -111,7 +111,7 @@ func add(mgr manager.Manager, r reconcile.Reconciler, ci hcoutil.ClusterInfo) er
 	err = c.Watch(
 		&source.Kind{Type: &hcov1beta1.HyperConverged{}},
 		&operatorhandler.InstrumentedEnqueueRequestForObject{},
-		predicate.GenerationOrAnnotationChangedPredicate{})
+		//predicate.GenerationOrAnnotationChangedPredicate{})
 	if err != nil {
 		return err
 	}

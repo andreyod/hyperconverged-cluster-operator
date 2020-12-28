@@ -21,7 +21,6 @@ import (
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
-	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
 )
 
@@ -202,13 +201,8 @@ func toUnstructured(obj interface{}) (*unstructured.Unstructured, error) {
 }
 
 // GetRuntimeObject will query the apiserver for the object
-func GetRuntimeObject(ctx context.Context, c client.Client, obj runtime.Object, logger logr.Logger) error {
-	key, err := client.ObjectKeyFromObject(obj)
-	if err != nil {
-		logger.Error(err, "Failed to get object key", "Kind", obj.GetObjectKind())
-		return err
-	}
-
+func GetRuntimeObject(ctx context.Context, c client.Client, obj client.Object, logger logr.Logger) error {
+	key := client.ObjectKeyFromObject(obj)
 	return c.Get(ctx, key, obj)
 }
 
@@ -281,7 +275,7 @@ func ComponentResourceRemoval(ctx context.Context, c client.Client, obj interfac
 
 // EnsureDeleted calls ComponentResourceRemoval if the runtime object exists
 // with wait=true it will wait, (util ctx timeout, please set it!) for the resource to be effectively deleted
-func EnsureDeleted(ctx context.Context, c client.Client, obj runtime.Object, hcoName string, logger logr.Logger, dryRun bool, wait bool) error {
+func EnsureDeleted(ctx context.Context, c client.Client, obj client.Object, hcoName string, logger logr.Logger, dryRun bool, wait bool) error {
 	err := GetRuntimeObject(ctx, c, obj, logger)
 
 	if err != nil {
@@ -298,7 +292,7 @@ func EnsureDeleted(ctx context.Context, c client.Client, obj runtime.Object, hco
 }
 
 // EnsureCreated creates the runtime object if it does not exist
-func EnsureCreated(ctx context.Context, c client.Client, obj runtime.Object, logger logr.Logger) error {
+func EnsureCreated(ctx context.Context, c client.Client, obj client.Object, logger logr.Logger) error {
 	err := GetRuntimeObject(ctx, c, obj, logger)
 
 	if err != nil {

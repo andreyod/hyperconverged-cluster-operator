@@ -40,10 +40,10 @@ type cdiHooks struct {
 	Scheme *runtime.Scheme
 }
 
-func (h cdiHooks) getFullCr(hc *hcov1beta1.HyperConverged) runtime.Object {
+func (h cdiHooks) getFullCr(hc *hcov1beta1.HyperConverged) client.Object {
 	return NewCDI(hc)
 }
-func (h cdiHooks) getEmptyCr() runtime.Object { return &cdiv1beta1.CDI{} }
+func (h cdiHooks) getEmptyCr() client.Object  { return &cdiv1beta1.CDI{} }
 func (h cdiHooks) validate() error            { return nil }
 func (h cdiHooks) getConditions(cr runtime.Object) []conditionsv1.Condition {
 	return cr.(*cdiv1beta1.CDI).Status.Conditions
@@ -150,13 +150,8 @@ func (h *cdiHooks) ensureKubeVirtStorageRole(req *common.HcoRequest) error {
 		return err
 	}
 
-	key, err := client.ObjectKeyFromObject(kubevirtStorageRole)
-	if err != nil {
-		req.Logger.Error(err, "Failed to get object key for kubevirt storage role")
-	}
-
 	found := &rbacv1.Role{}
-	err = h.Client.Get(req.Ctx, key, found)
+	err := h.Client.Get(req.Ctx, client.ObjectKeyFromObject(kubevirtStorageRole), found)
 	if err != nil && apierrors.IsNotFound(err) {
 		req.Logger.Info("Creating kubevirt storage role")
 		return h.Client.Create(req.Ctx, kubevirtStorageRole)
@@ -183,13 +178,8 @@ func (h *cdiHooks) ensureKubeVirtStorageRoleBinding(req *common.HcoRequest) erro
 		return err
 	}
 
-	key, err := client.ObjectKeyFromObject(kubevirtStorageRoleBinding)
-	if err != nil {
-		req.Logger.Error(err, "Failed to get object key for kubevirt storage rolebinding")
-	}
-
 	found := &rbacv1.RoleBinding{}
-	err = h.Client.Get(req.Ctx, key, found)
+	err := h.Client.Get(req.Ctx, client.ObjectKeyFromObject(kubevirtStorageRoleBinding), found)
 	if err != nil && apierrors.IsNotFound(err) {
 		req.Logger.Info("Creating kubevirt storage rolebinding")
 		return h.Client.Create(req.Ctx, kubevirtStorageRoleBinding)
@@ -273,10 +263,10 @@ func newStorageConfigHandler(Client client.Client, Scheme *runtime.Scheme) *stor
 
 type storageConfigHooks struct{}
 
-func (h storageConfigHooks) getFullCr(hc *hcov1beta1.HyperConverged) runtime.Object {
+func (h storageConfigHooks) getFullCr(hc *hcov1beta1.HyperConverged) client.Object {
 	return NewKubeVirtStorageConfigForCR(hc, hc.Namespace)
 }
-func (h storageConfigHooks) getEmptyCr() runtime.Object                              { return &corev1.ConfigMap{} }
+func (h storageConfigHooks) getEmptyCr() client.Object                               { return &corev1.ConfigMap{} }
 func (h storageConfigHooks) validate() error                                         { return nil }
 func (h storageConfigHooks) postFound(_ *common.HcoRequest, _ runtime.Object) error  { return nil }
 func (h storageConfigHooks) getConditions(_ runtime.Object) []conditionsv1.Condition { return nil }

@@ -47,10 +47,10 @@ func newKubevirtHandler(Client client.Client, Scheme *runtime.Scheme) *kubevirtH
 
 type kubevirtHooks struct{}
 
-func (h kubevirtHooks) getFullCr(hc *hcov1beta1.HyperConverged) runtime.Object {
+func (h kubevirtHooks) getFullCr(hc *hcov1beta1.HyperConverged) client.Object {
 	return NewKubeVirt(hc)
 }
-func (h kubevirtHooks) getEmptyCr() runtime.Object                         { return &kubevirtv1.KubeVirt{} }
+func (h kubevirtHooks) getEmptyCr() client.Object                          { return &kubevirtv1.KubeVirt{} }
 func (h kubevirtHooks) validate() error                                    { return nil }
 func (h kubevirtHooks) postFound(*common.HcoRequest, runtime.Object) error { return nil }
 func (h kubevirtHooks) getConditions(cr runtime.Object) []conditionsv1.Condition {
@@ -148,10 +148,10 @@ func newKvConfigHandler(Client client.Client, Scheme *runtime.Scheme) *kvConfigH
 
 type kvConfigHooks struct{}
 
-func (h kvConfigHooks) getFullCr(hc *hcov1beta1.HyperConverged) runtime.Object {
+func (h kvConfigHooks) getFullCr(hc *hcov1beta1.HyperConverged) client.Object {
 	return NewKubeVirtConfigForCR(hc, hc.Namespace)
 }
-func (h kvConfigHooks) getEmptyCr() runtime.Object                            { return &corev1.ConfigMap{} }
+func (h kvConfigHooks) getEmptyCr() client.Object                             { return &corev1.ConfigMap{} }
 func (h kvConfigHooks) validate() error                                       { return nil }
 func (h kvConfigHooks) postFound(*common.HcoRequest, runtime.Object) error    { return nil }
 func (h kvConfigHooks) getConditions(runtime.Object) []conditionsv1.Condition { return nil }
@@ -227,10 +227,10 @@ func newKvPriorityClassHandler(Client client.Client, Scheme *runtime.Scheme) *kv
 
 type kvPriorityClassHooks struct{}
 
-func (h kvPriorityClassHooks) getFullCr(hc *hcov1beta1.HyperConverged) runtime.Object {
+func (h kvPriorityClassHooks) getFullCr(hc *hcov1beta1.HyperConverged) client.Object {
 	return NewKubeVirtPriorityClass(hc)
 }
-func (h kvPriorityClassHooks) getEmptyCr() runtime.Object                              { return &schedulingv1.PriorityClass{} }
+func (h kvPriorityClassHooks) getEmptyCr() client.Object                               { return &schedulingv1.PriorityClass{} }
 func (h kvPriorityClassHooks) validate() error                                         { return nil }
 func (h kvPriorityClassHooks) postFound(_ *common.HcoRequest, _ runtime.Object) error  { return nil }
 func (h kvPriorityClassHooks) getConditions(_ runtime.Object) []conditionsv1.Condition { return nil }

@@ -69,10 +69,10 @@ func newCommonTemplateBundleHandler(clt client.Client, scheme *runtime.Scheme) *
 
 type commonTemplateBundleHooks struct{}
 
-func (h commonTemplateBundleHooks) getFullCr(hc *hcov1beta1.HyperConverged) runtime.Object {
+func (h commonTemplateBundleHooks) getFullCr(hc *hcov1beta1.HyperConverged) client.Object {
 	return NewKubeVirtCommonTemplateBundle(hc)
 }
-func (h commonTemplateBundleHooks) getEmptyCr() runtime.Object {
+func (h commonTemplateBundleHooks) getEmptyCr() client.Object {
 	return &sspv1.KubevirtCommonTemplatesBundle{}
 }
 func (h commonTemplateBundleHooks) validate() error                                    { return nil }
@@ -146,10 +146,10 @@ func newNodeLabellerBundleHandler(clt client.Client, scheme *runtime.Scheme) *no
 
 type nodeLabellerBundleHooks struct{}
 
-func (h nodeLabellerBundleHooks) getFullCr(hc *hcov1beta1.HyperConverged) runtime.Object {
+func (h nodeLabellerBundleHooks) getFullCr(hc *hcov1beta1.HyperConverged) client.Object {
 	return NewKubeVirtNodeLabellerBundleForCR(hc, hc.Namespace)
 }
-func (h nodeLabellerBundleHooks) getEmptyCr() runtime.Object {
+func (h nodeLabellerBundleHooks) getEmptyCr() client.Object {
 	return &sspv1.KubevirtNodeLabellerBundle{}
 }
 func (h nodeLabellerBundleHooks) validate() error                                        { return nil }
@@ -252,10 +252,10 @@ func newTemplateValidatorHandler(clt client.Client, scheme *runtime.Scheme) *tem
 
 type templateValidatorHooks struct{}
 
-func (h templateValidatorHooks) getFullCr(hc *hcov1beta1.HyperConverged) runtime.Object {
+func (h templateValidatorHooks) getFullCr(hc *hcov1beta1.HyperConverged) client.Object {
 	return NewKubeVirtTemplateValidatorForCR(hc, hc.Namespace)
 }
-func (h templateValidatorHooks) getEmptyCr() runtime.Object {
+func (h templateValidatorHooks) getEmptyCr() client.Object {
 	return &sspv1.KubevirtTemplateValidator{}
 }
 func (h templateValidatorHooks) validate() error                                        { return nil }
@@ -355,10 +355,10 @@ func newMetricsAggregationHandler(clt client.Client, scheme *runtime.Scheme) *me
 
 type metricsAggregationHooks struct{}
 
-func (h metricsAggregationHooks) getFullCr(hc *hcov1beta1.HyperConverged) runtime.Object {
+func (h metricsAggregationHooks) getFullCr(hc *hcov1beta1.HyperConverged) client.Object {
 	return NewKubeVirtMetricsAggregationForCR(hc, hc.Namespace)
 }
-func (h metricsAggregationHooks) getEmptyCr() runtime.Object {
+func (h metricsAggregationHooks) getEmptyCr() client.Object {
 	return &sspv1.KubevirtMetricsAggregation{}
 }
 func (h metricsAggregationHooks) validate() error                                        { return nil }
@@ -409,11 +409,7 @@ func (h *metricsAggregationHandler) Ensure(req *common.HcoRequest) *EnsureResult
 		return res.Error(err)
 	}
 
-	key, err := client.ObjectKeyFromObject(kubevirtMetricsAggregation)
-	if err != nil {
-		req.Logger.Error(err, "Failed to get object key for KubeVirt Metrics Aggregation")
-	}
-
+	key := client.ObjectKeyFromObject(kubevirtMetricsAggregation)
 	res.SetName(key.Name)
 	found := &sspv1.KubevirtMetricsAggregation{}
 

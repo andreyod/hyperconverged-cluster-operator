@@ -13,7 +13,6 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/runtime"
 	kubevirtv1 "kubevirt.io/client-go/api/v1"
 	cdiv1beta1 "kubevirt.io/containerized-data-importer/pkg/apis/core/v1beta1"
 	"reflect"
@@ -64,7 +63,7 @@ func (wh WebhookHandler) ValidateUpdate(requested *v1beta1.HyperConverged, exist
 		done := make(chan bool)
 
 		opts := &client.UpdateOptions{DryRun: []string{metav1.DryRunAll}}
-		resources := []runtime.Object{
+		resources := []client.Object{
 			operands.NewKubeVirt(requested),
 			operands.NewCDI(requested),
 			operands.NewNetworkAddons(requested),
@@ -83,7 +82,7 @@ func (wh WebhookHandler) ValidateUpdate(requested *v1beta1.HyperConverged, exist
 		}()
 
 		for _, obj := range resources {
-			go func(o runtime.Object, wgr *sync.WaitGroup) {
+			go func(o client.Object, wgr *sync.WaitGroup) {
 				defer wgr.Done()
 				if err := wh.updateOperatorCr(ctx, requested, o, opts); err != nil {
 					errorCh <- err
@@ -111,7 +110,7 @@ func (wh WebhookHandler) ValidateUpdate(requested *v1beta1.HyperConverged, exist
 }
 
 // currently only supports KV and CDI
-func (wh WebhookHandler) updateOperatorCr(ctx context.Context, hc *v1beta1.HyperConverged, exists runtime.Object, opts *client.UpdateOptions) error {
+func (wh WebhookHandler) updateOperatorCr(ctx context.Context, hc *v1beta1.HyperConverged, exists client.Object, opts *client.UpdateOptions) error {
 	err := hcoutil.GetRuntimeObject(ctx, wh.cli, exists, wh.logger)
 	if err != nil {
 		wh.logger.Error(err, "failed to get object from kubernetes", "kind", exists.GetObjectKind())
@@ -166,7 +165,7 @@ func (wh WebhookHandler) ValidateDelete(hc *v1beta1.HyperConverged) error {
 
 	ctx := context.TODO()
 
-	for _, obj := range []runtime.Object{
+	for _, obj := range []client.Object{
 		operands.NewKubeVirt(hc),
 		operands.NewCDI(hc),
 	} {
@@ -202,13 +201,8 @@ func (wh WebhookHandler) HandleMutatingNsDelete(ns *corev1.Namespace, dryRun boo
 	// For now let's simply block the deletion if the namespace with a clear error message
 	// if HCO CR is still there
 
-	key, err := client.ObjectKeyFromObject(hco)
-	if err != nil {
-		wh.logger.Error(err, "failed to get object key for HyperConverged CR")
-		return false, err
-	}
 	found := &v1beta1.HyperConverged{}
-	err = wh.cli.Get(ctx, key, found)
+	err := wh.cli.Get(ctx, client.ObjectKeyFromObject(hco), found)
 	if err != nil {
 		if apierrors.IsNotFound(err) {
 			wh.logger.Info("HCO CR doesn't not exist, allow namespace deletion")

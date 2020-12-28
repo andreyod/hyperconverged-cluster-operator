@@ -35,10 +35,10 @@ func newCnaHandler(Client client.Client, Scheme *runtime.Scheme) *cnaHandler {
 
 type cnaHooks struct{}
 
-func (h cnaHooks) getFullCr(hc *hcov1beta1.HyperConverged) runtime.Object {
+func (h cnaHooks) getFullCr(hc *hcov1beta1.HyperConverged) client.Object {
 	return NewNetworkAddons(hc)
 }
-func (h cnaHooks) getEmptyCr() runtime.Object                         { return &networkaddonsv1.NetworkAddonsConfig{} }
+func (h cnaHooks) getEmptyCr() client.Object                          { return &networkaddonsv1.NetworkAddonsConfig{} }
 func (h cnaHooks) validate() error                                    { return nil }
 func (h cnaHooks) postFound(*common.HcoRequest, runtime.Object) error { return nil }
 func (h cnaHooks) getConditions(cr runtime.Object) []conditionsv1.Condition {

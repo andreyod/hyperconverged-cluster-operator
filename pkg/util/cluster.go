@@ -40,15 +40,7 @@ func (c *ClusterInfoImp) CheckRunningInOpenshift(creader client.Reader, ctx cont
 			Name: "version",
 		},
 	}
-	key, err := client.ObjectKeyFromObject(clusterVersion)
-	if err != nil {
-		logger.Error(err, "Failed to get object key for ClusterVersion")
-		return err
-	}
-
-	err = creader.Get(ctx, key, clusterVersion)
-
-	if err != nil {
+	if err := creader.Get(ctx, client.ObjectKeyFromObject(clusterVersion), clusterVersion); err != nil {
 		if meta.IsNoMatchError(err) || apierrors.IsNotFound(err) {
 			// Not on OpenShift
 			isOpenShift = false

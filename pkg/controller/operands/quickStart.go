@@ -51,11 +51,11 @@ type qsHooks struct {
 	required *consolev1.ConsoleQuickStart
 }
 
-func (h qsHooks) getFullCr(_ *hcov1beta1.HyperConverged) runtime.Object {
+func (h qsHooks) getFullCr(_ *hcov1beta1.HyperConverged) client.Object {
 	return h.required
 }
 
-func (h qsHooks) getEmptyCr() runtime.Object {
+func (h qsHooks) getEmptyCr() client.Object {
 	return &consolev1.ConsoleQuickStart{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: h.required.Name,
@@ -111,13 +111,8 @@ func checkCrdExists(ctx context.Context, Client client.Client, logger log.Logger
 		},
 	}
 
-	key, err := client.ObjectKeyFromObject(qsCrd)
-	if err != nil {
-		return false, err
-	}
-
 	logger.Info("Read the ConsoleQuickStart CRD")
-	if err = Client.Get(ctx, key, qsCrd); err != nil {
+	if err := Client.Get(ctx, client.ObjectKeyFromObject(qsCrd), qsCrd); err != nil {
 		if apierrors.IsNotFound(err) {
 			return false, nil
 		}
