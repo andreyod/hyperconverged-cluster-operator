@@ -1,6 +1,7 @@
 package hyperconverged
 
 import (
+	"context"
 	"fmt"
 	"os"
 
@@ -110,7 +111,7 @@ func add(mgr manager.Manager, r reconcile.Reconciler, ci hcoutil.ClusterInfo) er
 	// Watch for changes to primary resource HyperConverged
 	err = c.Watch(
 		&source.Kind{Type: &hcov1beta1.HyperConverged{}},
-		&operatorhandler.InstrumentedEnqueueRequestForObject{},
+		&operatorhandler.InstrumentedEnqueueRequestForObject{})
 		//predicate.GenerationOrAnnotationChangedPredicate{})
 	if err != nil {
 		return err
@@ -121,7 +122,7 @@ func add(mgr manager.Manager, r reconcile.Reconciler, ci hcoutil.ClusterInfo) er
 		return err
 	}
 
-	secondaryResources := []runtime.Object{
+	secondaryResources := []client.Object{
 		&kubevirtv1.KubeVirt{},
 		&cdiv1beta1.CDI{},
 		&networkaddonsv1.NetworkAddonsConfig{},
@@ -133,7 +134,7 @@ func add(mgr manager.Manager, r reconcile.Reconciler, ci hcoutil.ClusterInfo) er
 		&vmimportv1beta1.VMImportConfig{},
 	}
 	if ci.IsOpenshift() {
-		secondaryResources = append(secondaryResources, []runtime.Object{
+		secondaryResources = append(secondaryResources, []client.Object{
 			&corev1.Service{},
 			&monitoringv1.ServiceMonitor{},
 			&monitoringv1.PrometheusRule{},
@@ -143,18 +144,18 @@ func add(mgr manager.Manager, r reconcile.Reconciler, ci hcoutil.ClusterInfo) er
 	// Watch secondary resources
 	for _, resource := range secondaryResources {
 		msg := fmt.Sprintf("Reconciling for %T", resource)
-		err = c.Watch(&source.Kind{Type: resource}, &handler.EnqueueRequestsFromMapFunc{
-			ToRequests: handler.ToRequestsFunc(
+		err = c.Watch(
+			&source.Kind{Type: resource},
+			handler.EnqueueRequestsFromMapFunc(func(a client.Object) []reconcile.Request {
 				// enqueue using a placeholder to be able to discriminate request triggered
 				// by changes on the HyperConverged object from request triggered by changes
 				// on a secondary CR controlled by HCO
-				func(a handler.MapObject) []reconcile.Request {
-					log.Info(msg)
-					return []reconcile.Request{
-						{NamespacedName: secCRPlaceholder},
-					}
-				}),
-		})
+				log.Info(msg)
+				return []reconcile.Request{
+					{NamespacedName: secCRPlaceholder},
+				}
+			}),
+		)
 		if err != nil {
 			return err
 		}
@@ -185,7 +186,7 @@ type ReconcileHyperConverged struct {
 // Note:
 // The Controller will requeue the Request to be processed again if the returned error is non-nil or
 // Result.Requeue is true, otherwise upon completion it will remove the work from the queue.
-func (r *ReconcileHyperConverged) Reconcile(request reconcile.Request) (reconcile.Result, error) {
+func (r *ReconcileHyperConverged) Reconcile(ctx context.Context, request reconcile.Request) (reconcile.Result, error) {
 
 	secCRPlaceholder, err := getSecondaryCRPlaceholder()
 	if err != nil {
