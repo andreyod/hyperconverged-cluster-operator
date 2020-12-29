@@ -43,8 +43,8 @@ type cdiHooks struct {
 func (h cdiHooks) getFullCr(hc *hcov1beta1.HyperConverged) client.Object {
 	return NewCDI(hc)
 }
-func (h cdiHooks) getEmptyCr() client.Object  { return &cdiv1beta1.CDI{} }
-func (h cdiHooks) validate() error            { return nil }
+func (h cdiHooks) getEmptyCr() client.Object { return &cdiv1beta1.CDI{} }
+func (h cdiHooks) validate() error           { return nil }
 func (h cdiHooks) getConditions(cr runtime.Object) []conditionsv1.Condition {
 	return cr.(*cdiv1beta1.CDI).Status.Conditions
 }

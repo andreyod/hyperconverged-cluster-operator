@@ -17,7 +17,6 @@ require (
 	github.com/kubevirt/cluster-network-addons-operator v0.44.0
 	github.com/kubevirt/kubevirt-ssp-operator v1.2.1
 	github.com/kubevirt/vm-import-operator v0.2.5
-	github.com/mattn/goveralls v0.0.7 // indirect
 	github.com/onsi/ginkgo v1.14.2
 	github.com/onsi/gomega v1.10.4
 	github.com/openshift/api v3.9.1-0.20190924102528-32369d4db2ad+incompatible
@@ -44,11 +43,9 @@ require (
 	k8s.io/component-base v0.20.1 // indirect
 	k8s.io/klog/v2 v2.4.0 // indirect
 	k8s.io/kube-openapi v0.0.0-20201113171705-d219536bb9fd
-	k8s.io/utils v0.0.0-20200912215256-4140de9c8800 // indirect
 	kubevirt.io/client-go v0.36.0
 	kubevirt.io/containerized-data-importer v1.28.0
 	kubevirt.io/controller-lifecycle-operator-sdk v0.1.1
-	kubevirt.io/kubevirt v0.36.0 // indirect
 	sigs.k8s.io/controller-runtime v0.7.0
 	sigs.k8s.io/controller-tools v0.4.1
 )
