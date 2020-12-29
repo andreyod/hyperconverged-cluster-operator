@@ -37,7 +37,6 @@ import (
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 )
 
-// Change below variables to serve metrics on different host or port.
 var (
 	log = logf.Log.WithName("cmd")
 )

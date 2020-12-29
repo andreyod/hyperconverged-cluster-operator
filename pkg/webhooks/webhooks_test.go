@@ -683,7 +683,7 @@ var (
 	ErrFakeVMImportError             = errors.New("fake VMImport error")
 )
 
-func (ec errorClient) Update(ctx context.Context, obj runtime.Object, opts ...client.UpdateOption) error {
+func (ec errorClient) Update(ctx context.Context, obj client.Object, opts ...client.UpdateOption) error {
 	switch obj.(type) {
 	case *kubevirtv1.KubeVirt:
 		if ec.failure == kvUpdateFailure {

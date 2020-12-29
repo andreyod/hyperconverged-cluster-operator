@@ -43,8 +43,7 @@ var _ = Describe("KubeVirt Operand", func() {
 			Expect(res.UpgradeDone).To(BeFalse())
 			Expect(res.Err).To(BeNil())
 
-			key, err := client.ObjectKeyFromObject(expectedResource)
-			Expect(err).ToNot(HaveOccurred())
+			key := client.ObjectKeyFromObject(expectedResource)
 			foundResource := &schedulingv1.PriorityClass{}
 			Expect(cl.Get(context.TODO(), key, foundResource)).To(BeNil())
 			Expect(foundResource.Name).To(Equal(expectedResource.Name))
@@ -73,8 +72,7 @@ var _ = Describe("KubeVirt Operand", func() {
 			Expect(res.Err).To(BeNil())
 
 			expectedResource := NewKubeVirtPriorityClass(hco)
-			key, err := client.ObjectKeyFromObject(expectedResource)
-			Expect(err).ToNot(HaveOccurred())
+			key := client.ObjectKeyFromObject(expectedResource)
 			foundResource := &schedulingv1.PriorityClass{}
 			Expect(cl.Get(context.TODO(), key, foundResource))
 			Expect(foundResource.Name).To(Equal(expectedResource.Name))

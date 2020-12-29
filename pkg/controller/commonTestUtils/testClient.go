@@ -2,6 +2,8 @@ package commonTestUtils
 
 import (
 	"context"
+
+	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/apimachinery/pkg/runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
@@ -73,6 +75,14 @@ func (c *HcoTestClient) InitiateReadErrors(errs ...error) {
 
 func (c *HcoTestClient) InitiateWriteErrors(errs ...error) {
 	c.writeErrors = errs
+}
+
+func (c *HcoTestClient) Scheme() *runtime.Scheme {
+	return &runtime.Scheme{}
+}
+
+func (c *HcoTestClient) RESTMapper() meta.RESTMapper {
+	return nil
 }
 
 type HcoTestStatusWriter struct {
