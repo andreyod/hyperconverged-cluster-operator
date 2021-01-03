@@ -22,14 +22,14 @@ const (
 	kubevirtDefaultNetworkInterfaceValue = "masquerade"
 	// We can import the constants below from Kubevirt virt-config package
 	// after Kubevirt will consume k8s.io v0.19.2 or higher
-	FeatureGatesKey                      = "feature-gates"
-	MachineTypeKey                       = "machine-type"
-	UseEmulationKey                      = "debug.useEmulation"
-	MigrationsConfigKey                  = "migrations"
-	NetworkInterfaceKey                  = "default-network-interface"
-	SmbiosConfigKey                      = "smbios"
-	SELinuxLauncherTypeKey               = "selinuxLauncherType"
-	DefaultNetworkInterface              = "bridge"
+	FeatureGatesKey         = "feature-gates"
+	MachineTypeKey          = "machine-type"
+	UseEmulationKey         = "debug.useEmulation"
+	MigrationsConfigKey     = "migrations"
+	NetworkInterfaceKey     = "default-network-interface"
+	SmbiosConfigKey         = "smbios"
+	SELinuxLauncherTypeKey  = "selinuxLauncherType"
+	DefaultNetworkInterface = "bridge"
 )
 
 // ************  KubeVirt Handler  **************
