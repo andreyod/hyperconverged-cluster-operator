@@ -20,7 +20,7 @@ import (
 
 const (
 	kubevirtDefaultNetworkInterfaceValue = "masquerade"
-	// We can import the contants below from Kubevirt virt-config package
+	// We can import the constants below from Kubevirt virt-config package
 	// after Kubevirt will consume k8s.io v0.19.2 or higher
 	FeatureGatesKey                      = "feature-gates"
 	MachineTypeKey                       = "machine-type"
