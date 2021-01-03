@@ -3,7 +3,6 @@ package operands
 import (
 	"context"
 	"fmt"
-	consolev1 "github.com/openshift/api/console/v1"
 	"sync"
 	"time"
 
@@ -11,6 +10,7 @@ import (
 	"github.com/kubevirt/hyperconverged-cluster-operator/pkg/controller/common"
 	"github.com/kubevirt/hyperconverged-cluster-operator/pkg/metrics"
 	hcoutil "github.com/kubevirt/hyperconverged-cluster-operator/pkg/util"
+	consolev1 "github.com/openshift/api/console/v1"
 	conditionsv1 "github.com/openshift/custom-resource-status/conditions/v1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -173,10 +173,10 @@ func (h OperandHandler) EnsureDeleted(req *common.HcoRequest) error {
 				h.eventEmitter.EmitEvent(req.Instance, corev1.EventTypeWarning, errT, errMsg)
 				errorCh <- err
 			} else {
-				// TODO temp remove. review this
-				//if key, err := client.ObjectKeyFromObject(o); err == nil {
-				//	h.eventEmitter.EmitEvent(req.Instance, corev1.EventTypeNormal, "Killing", fmt.Sprintf("Removed %s %s", o.GetObjectKind().GroupVersionKind().Kind, key.Name))
-				//}
+				key := client.ObjectKeyFromObject(o)
+				if err := h.client.Get(tCtx, key, o); err == nil {
+					h.eventEmitter.EmitEvent(req.Instance, corev1.EventTypeNormal, "Killing", fmt.Sprintf("Removed %s %s", o.GetObjectKind().GroupVersionKind().Kind, key.Name))
+				}
 			}
 		}(res, &wg)
 	}
@@ -196,6 +196,4 @@ func (h OperandHandler) EnsureDeleted(req *common.HcoRequest) error {
 
 		return nil
 	}
-
-	return nil
 }

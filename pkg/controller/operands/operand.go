@@ -2,12 +2,11 @@ package operands
 
 import (
 	"fmt"
-	hcoutil "github.com/kubevirt/hyperconverged-cluster-operator/pkg/util"
 	"os"
-	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
 	hcov1beta1 "github.com/kubevirt/hyperconverged-cluster-operator/pkg/apis/hco/v1beta1"
 	"github.com/kubevirt/hyperconverged-cluster-operator/pkg/controller/common"
+	hcoutil "github.com/kubevirt/hyperconverged-cluster-operator/pkg/util"
 	conditionsv1 "github.com/openshift/custom-resource-status/conditions/v1"
 	objectreferencesv1 "github.com/openshift/custom-resource-status/objectreferences/v1"
 	corev1 "k8s.io/api/core/v1"
@@ -16,6 +15,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/tools/reference"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 )
 
 type Operand interface {
@@ -88,19 +88,14 @@ func (h *genericOperand) ensure(req *common.HcoRequest) *EnsureResult {
 		if apierrors.IsNotFound(err) {
 			req.Logger.Info("Creating " + h.crType)
 			err = h.Client.Create(req.Ctx, cr)
-			if err == nil {
-				return res.SetCreated().SetName(key.Name)
+			if err != nil {
+				req.Logger.Error(err, "Failed to create object for "+h.crType)
+				return res.Error(err)
 			}
+			return res.SetCreated().SetName(key.Name)
 		}
 		return res.Error(err)
 	}
-	// temp commented. review this
-	//key, err = client.ObjectKeyFromObject(found)
-	key = client.ObjectKeyFromObject(found)
-	//if err != nil {
-	//	req.Logger.Error(err, "Failed to get object key for "+h.crType)
-	//	return res.Error(err)
-	//}
 
 	req.Logger.Info(h.crType+" already exists", h.crType+".Namespace", key.Namespace, h.crType+".Name", key.Name)
 

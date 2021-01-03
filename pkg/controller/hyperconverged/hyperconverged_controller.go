@@ -20,6 +20,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/handler"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
+	"sigs.k8s.io/controller-runtime/pkg/predicate"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 	"sigs.k8s.io/controller-runtime/pkg/source"
 
@@ -29,7 +30,6 @@ import (
 	"github.com/kubevirt/hyperconverged-cluster-operator/pkg/controller/common"
 	"github.com/kubevirt/hyperconverged-cluster-operator/pkg/controller/operands"
 	hcoutil "github.com/kubevirt/hyperconverged-cluster-operator/pkg/util"
-	//	"github.com/kubevirt/hyperconverged-cluster-operator/pkg/util/predicate"
 	version "github.com/kubevirt/hyperconverged-cluster-operator/version"
 	sspv1 "github.com/kubevirt/kubevirt-ssp-operator/pkg/apis/kubevirt/v1"
 	vmimportv1beta1 "github.com/kubevirt/vm-import-operator/pkg/apis/v2v/v1beta1"
@@ -111,8 +111,8 @@ func add(mgr manager.Manager, r reconcile.Reconciler, ci hcoutil.ClusterInfo) er
 	// Watch for changes to primary resource HyperConverged
 	err = c.Watch(
 		&source.Kind{Type: &hcov1beta1.HyperConverged{}},
-		&operatorhandler.InstrumentedEnqueueRequestForObject{})
-	//predicate.GenerationOrAnnotationChangedPredicate{})
+		&operatorhandler.InstrumentedEnqueueRequestForObject{},
+		predicate.Or(predicate.GenerationChangedPredicate{}, predicate.AnnotationChangedPredicate{}))
 	if err != nil {
 		return err
 	}
